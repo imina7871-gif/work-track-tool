@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Work Tracker</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #1a1a2e;
+            color: #e0e0e0;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            background: #1E2761;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        h1 {
+            color: white;
+            font-size: 28px;
+            font-weight: bold;
+        }
+        
+        .tabs {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .tab-btn {
+            background: transparent;
+            border: none;
+            color: #CADCFC;
+            padding: 10px 20px;
+            cursor: pointer;
+            font-size: 14px;
+            border-radius: 6px;
+            transition: all 0.2s;
+        }
+        
+        .tab-btn:hover {
+            background: #2a3a6e;
+        }
+        
+        .tab-btn.active {
+            background: #2a3a6e;
+            color: white;
+        }
+        
+        .content {
+            background: #16213e;
+            padding: 30px;
+            border-radius: 10px;
+            min-height: 500px;
+        }
+        
+        .page {
+            display: none;
+        }
+        
+        .page.active {
+            display: block;
+        }
+        
+        h2 {
+            color: #CADCFC;
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #e0e0e0;
+            font-size: 14px;
+        }
+        
+        input, select, textarea {
+            width: 100%;
+            padding: 10px;
+            background: #1a1a2e;
+            border: 1px solid #2a3a6e;
+            border-radius: 6px;
+            color: white;
+            font-size: 14px;
+        }
+        
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #028090;
+        }
+        
+        .btn {
+            background: #028090;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            transition: all 0.2s;
+        }
+        
+        .btn:hover {
+            background: #026a78;
+        }
+        
+        .btn-danger {
+            background: #B85042;
+        }
+        
+        .btn-danger:hover {
+            background: #9a3a2e;
+        }
+        
+        .task-list {
+            margin-top: 20px;
+        }
+        
+        .task-item {
+            background: #1a1a2e;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .task-category {
+            background: #1E2761;
+            color: white;
+            padding: 5px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+            min-width: 120px;
+            text-align: center;
+        }
+        
+        .task-description {
+            flex: 1;
+            font-size: 14px;
+        }
+        
+        .task-duration {
+            color: #8899BB;
+            font-size: 13px;
+            min-width: 60px;
+        }
+        
+        .task-delete {
+            background: #B85042;
+            color: white;
+            border: none;
+            width: 28px;
+            height: 28px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        
+        .task-delete:hover {
+            background: #9a3a2e;
+        }
+        
+        .stats-bar {
+            display: flex;
+            gap: 40px;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #1a1a2e;
+            border-radius: 8px;
+        }
+        
+        .stat-item {
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 32px;
+            font-weight: bold;
+            color: #CADCFC;
+        }
+        
+        .stat-label {
+            font-size: 12px;
+            color: #8899BB;
+            margin-top: 5px;
+        }
+        
+        .category-section {
+            margin-bottom: 30px;
+        }
+        
+        .category-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .category-name {
+            font-size: 18px;
+            font-weight: bold;
+            color: #028090;
+        }
+        
+        .category-stats {
+            color: #8899BB;
+            font-size: 13px;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #8899BB;
+            font-size: 16px;
+        }
+        
+        .report-btn {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: #028090;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            transition: all 0.2s;
+        }
+        
+        .report-btn:hover {
+            background: #026a78;
+            transform: translateY(-2px);
+        }
+        
+        .report-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #028090;
+            color: white;
+            padding: 15px 25px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            display: none;
+            z-index: 1000;
+        }
+        
+        .notification.show {
+            display: block;
+            animation: slideIn 0.3s ease;
+        }
+        
+        @keyframes slideIn {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Work Tracker</h1>
+            <div class="tabs">
+                <button class="tab-btn active" onclick="switchTab('dashboard')">Dashboard</button>
+                <button class="tab-btn" onclick="switchTab('week')">This Week</button>
+                <button class="tab-btn" onclick="switchTab('history')">History</button>
+                <button class="tab-btn" onclick="switchTab('settings')">Settings</button>
+            </div>
+        </header>
+        
+        <div class="content">
+            <!-- Dashboard Page -->
+            <div id="dashboard" class="page active">
+                <h2>Dashboard</h2>
+                <p style="color: #8899BB; margin-bottom: 20px;" id="today-date"></p>
+                
+                <div style="background: #1a1a2e; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+                    <h3 style="color: #CADCFC; margin-bottom: 15px;">Log a Task</h3>
+                    
+                    <div style="display: flex; gap: 15px; margin-bottom: 15px;">
+                        <div style="flex: 1;">
+                            <label>Category</label>
+                            <select id="task-category"></select>
+                        </div>
+                        <div style="width: 100px;">
+                            <label>Duration (min)</label>
+                            <input type="number" id="task-duration" value="0" min="0">
+                        </div>
+                    </div>
+                    
+                    <div style="margin-bottom: 15px;">
+                        <label>Task Description</label>
+                        <input type="text" id="task-description" placeholder="What did you work on?">
+                    </div>
+                    
+                    <button class="btn" onclick="addTask()">Add Task</button>
+                </div>
+                
+                <h3 style="color: #CADCFC; margin-bottom: 15px;">Today's Tasks</h3>
+                <div id="today-tasks" class="task-list"></div>
+            </div>
+            
+            <!-- Week Page -->
+            <div id="week" class="page">
+                <h2>This Week</h2>
+                <p style="color: #8899BB; margin-bottom: 20px;" id="week-range"></p>
+                
+                <div class="stats-bar" id="week-stats"></div>
+                
+                <div id="week-tasks"></div>
+            </div>
+            
+            <!-- History Page -->
+            <div id="history" class="page">
+                <h2>History</h2>
+                <div id="history-tasks" class="task-list"></div>
+            </div>
+            
+            <!-- Settings Page -->
+            <div id="settings" class="page">
+                <h2>Settings</h2>
+                
+                <h3 style="color: #CADCFC; margin: 20px 0 15px;">Categories</h3>
+                <div id="categories-list"></div>
+                
+                <div style="background: #1a1a2e; padding: 20px; border-radius: 8px; margin-top: 20px;">
+                    <h4 style="color: #CADCFC; margin-bottom: 15px;">Add Category</h4>
+                    <div style="display: flex; gap: 10px;">
+                        <input type="text" id="new-category" placeholder="Category name" style="flex: 1;">
+                        <button class="btn" onclick="addCategory()">Add</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <button class="report-btn" onclick="generateReport()">📊 Generate Report</button>
+    
+    <div class="notification" id="notification"></div>
+    
+    <script>
+        let categories = [];
+        
+        // Initialize
+        async function init() {
+            await loadCategories();
+            await loadDashboard();
+            updateDate();
+        }
+        
+        function updateDate() {
+            const today = new Date();
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            document.getElementById('today-date').textContent = today.toLocaleDateString('en-US', options);
+            
+            const monday = new Date(today);
+            monday.setDate(today.getDate() - today.getDay() + 1);
+            const sunday = new Date(monday);
+            sunday.setDate(monday.getDate() + 6);
+            document.getElementById('week-range').textContent = 
+                `${monday.toLocaleDateString('en-US', {month: 'short', day: 'numeric'})} — ${sunday.toLocaleDateString('en-US', {month: 'short', day: 'numeric', year: 'numeric'})}`;
+        }
+        
+        async function loadCategories() {
+            const res = await fetch('/api/categories');
+            categories = await res.json();
+            
+            const select = document.getElementById('task-category');
+            select.innerHTML = categories.map(c => `<option value="${c.name}">${c.name}</option>`).join('');
+            
+            renderCategories();
+        }
+        
+        async function loadDashboard() {
+            const res = await fetch('/api/tasks?scope=today');
+            const tasks = await res.json();
+            renderTaskList('today-tasks', tasks);
+        }
+        
+        async function loadWeek() {
+            const res = await fetch('/api/stats/week');
+            const stats = await res.json();
+            
+            const totalTasks = Object.values(stats).reduce((sum, s) => sum + s.count, 0);
+            const totalMins = Object.values(stats).reduce((sum, s) => sum + s.total_minutes, 0);
+            
+            document.getElementById('week-stats').innerHTML = `
+                <div class="stat-item">
+                    <div class="stat-value">${totalTasks}</div>
+                    <div class="stat-label">Tasks</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">${totalMins}min</div>
+                    <div class="stat-label">Time</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">${Object.keys(stats).length}</div>
+                    <div class="stat-label">Categories</div>
+                </div>
+            `;
+            
+            let html = '';
+            for (const [catName, catStats] of Object.entries(stats)) {
+                const cat = categories.find(c => c.name === catName);
+                const color = cat ? cat.color : '#1E2761';
+                
+                html += `
+                    <div class="category-section">
+                        <div class="category-header">
+                            <div class="category-name" style="color: ${color}">${catName}</div>
+                            <div class="category-stats">${catStats.count} tasks · ${catStats.total_minutes}min</div>
+                        </div>
+                        <div class="task-list">
+                            ${catStats.tasks.map(t => renderTaskItem(t)).join('')}
+                        </div>
+                    </div>
+                `;
+            }
+            
+            document.getElementById('week-tasks').innerHTML = html || '<div class="empty-state">No tasks this week</div>';
+        }
+        
+        async function loadHistory() {
+            const res = await fetch('/api/tasks?scope=all');
+            const tasks = await res.json();
+            
+            if (tasks.length === 0) {
+                document.getElementById('history-tasks').innerHTML = '<div class="empty-state">No tasks logged yet</div>';
+                return;
+            }
+            
+            const byDate = tasks.reduce((acc, t) => {
+                if (!acc[t.date]) acc[t.date] = [];
+                acc[t.date].push(t);
+                return acc;
+            }, {});
+            
+            let html = '';
+            for (const [date, dateTasks] of Object.entries(byDate).sort((a, b) => b[0].localeCompare(a[0]))) {
+                const dateObj = new Date(date);
+                const dateLabel = dateObj.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+                const totalMin = dateTasks.reduce((sum, t) => sum + t.duration_minutes, 0);
+                
+                html += `
+                    <div style="margin-bottom: 30px;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                            <div style="color: #CADCFC; font-weight: bold;">${dateLabel}</div>
+                            <div style="color: #8899BB; font-size: 13px;">${dateTasks.length} tasks · ${totalMin}min</div>
+                        </div>
+                        <div class="task-list">
+                            ${dateTasks.map(t => renderTaskItem(t)).join('')}
+                        </div>
+                    </div>
+                `;
+            }
+            
+            document.getElementById('history-tasks').innerHTML = html;
+        }
+        
+        function renderTaskList(containerId, tasks) {
+            const container = document.getElementById(containerId);
+            if (tasks.length === 0) {
+                container.innerHTML = '<div class="empty-state">No tasks logged yet</div>';
+                return;
+            }
+            container.innerHTML = tasks.map(t => renderTaskItem(t)).join('');
+        }
+        
+        function renderTaskItem(task) {
+            const cat = categories.find(c => c.name === task.category);
+            const color = cat ? cat.color : '#1E2761';
+            const dur = task.duration_minutes > 0 ? `${task.duration_minutes}min` : '—';
+            
+            return `
+                <div class="task-item">
+                    <div class="task-category" style="background: ${color}">${task.category}</div>
+                    <div class="task-description">${task.description}</div>
+                    <div class="task-duration">${dur}</div>
+                    <button class="task-delete" onclick="deleteTask(${task.id})">✕</button>
+                </div>
+            `;
+        }
+        
+        function renderCategories() {
+            const container = document.getElementById('categories-list');
+            container.innerHTML = categories.map(c => `
+                <div class="task-item">
+                    <div style="width: 14px; height: 14px; border-radius: 50%; background: ${c.color};"></div>
+                    <div class="task-description">${c.name}</div>
+                    <button class="task-delete" onclick="deleteCategory('${c.name}')">✕</button>
+                </div>
+            `).join('');
+        }
+        
+        async function addTask() {
+            const category = document.getElementById('task-category').value;
+            const duration = parseInt(document.getElementById('task-duration').value) || 0;
+            const description = document.getElementById('task-description').value.trim();
+            
+            if (!description) {
+                showNotification('Please enter a task description', 'error');
+                return;
+            }
+            
+            await fetch('/api/tasks', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ category, duration, description })
+            });
+            
+            document.getElementById('task-description').value = '';
+            document.getElementById('task-duration').value = '0';
+            
+            await loadDashboard();
+            showNotification('Task added!');
+        }
+        
+        async function deleteTask(id) {
+            if (!confirm('Delete this task?')) return;
+            await fetch(`/api/tasks/${id}`, { method: 'DELETE' });
+            await refreshCurrentTab();
+        }
+        
+        async function addCategory() {
+            const name = document.getElementById('new-category').value.trim();
+            if (!name) return;
+            
+            await fetch('/api/categories', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name })
+            });
+            
+            document.getElementById('new-category').value = '';
+            await loadCategories();
+            showNotification('Category added!');
+        }
+        
+        async function deleteCategory(name) {
+            if (!confirm(`Delete category '${name}'?`)) return;
+            await fetch(`/api/categories/${name}`, { method: 'DELETE' });
+            await loadCategories();
+        }
+        
+        async function generateReport() {
+            const btn = document.querySelector('.report-btn');
+            btn.disabled = true;
+            btn.textContent = 'Generating...';
+            
+            try {
+                const res = await fetch('/api/report', { method: 'POST' });
+                const data = await res.json();
+                
+                if (data.success) {
+                    showNotification(`Report saved to: ${data.path}`);
+                } else {
+                    showNotification(`Error: ${data.error}`, 'error');
+                }
+            } catch (e) {
+                showNotification(`Error: ${e.message}`, 'error');
+            } finally {
+                btn.disabled = false;
+                btn.textContent = '📊 Generate Report';
+            }
+        }
+        
+        function switchTab(tabName) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+            
+            if (tabName === 'week') loadWeek();
+            if (tabName === 'history') loadHistory();
+            if (tabName === 'settings') loadCategories();
+        }
+        
+        async function refreshCurrentTab() {
+            const activeTab = document.querySelector('.tab-btn.active').textContent.toLowerCase();
+            if (activeTab.includes('dashboard')) await loadDashboard();
+            if (activeTab.includes('week')) await loadWeek();
+            if (activeTab.includes('history')) await loadHistory();
+        }
+        
+        function showNotification(message, type = 'success') {
+            const notif = document.getElementById('notification');
+            notif.textContent = message;
+            notif.style.background = type === 'error' ? '#B85042' : '#028090';
+            notif.classList.add('show');
+            setTimeout(() => notif.classList.remove('show'), 3000);
+        }
+        
+        // Enter key to add task
+        document.getElementById('task-description').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') addTask();
+        });
+        
+        // Initialize on load
+        init();
+    </script>
+</body>
+</html>

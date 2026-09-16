@@ -1,0 +1,1287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Work Tracker</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #1a1a2e;
+            color: #e0e0e0;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            background: #1E2761;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        h1 {
+            color: white;
+            font-size: 28px;
+            font-weight: bold;
+        }
+        
+        .tabs {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .tab-btn {
+            background: transparent;
+            border: none;
+            color: #CADCFC;
+            padding: 10px 20px;
+            cursor: pointer;
+            font-size: 14px;
+            border-radius: 6px;
+            transition: all 0.2s;
+        }
+        
+        .tab-btn:hover {
+            background: #2a3a6e;
+        }
+        
+        .tab-btn.active {
+            background: #2a3a6e;
+            color: white;
+        }
+        
+        .content {
+            background: #16213e;
+            padding: 30px;
+            border-radius: 10px;
+            min-height: 500px;
+        }
+        
+        .page {
+            display: none;
+        }
+        
+        .page.active {
+            display: block;
+        }
+        
+        h2 {
+            color: #CADCFC;
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #e0e0e0;
+            font-size: 14px;
+        }
+        
+        input, select, textarea {
+            width: 100%;
+            padding: 10px;
+            background: #1a1a2e;
+            border: 1px solid #2a3a6e;
+            border-radius: 6px;
+            color: white;
+            font-size: 14px;
+        }
+        
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #028090;
+        }
+        
+        .btn {
+            background: #028090;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            transition: all 0.2s;
+        }
+        
+        .btn:hover {
+            background: #026a78;
+        }
+        
+        .btn-danger {
+            background: #B85042;
+        }
+        
+        .btn-danger:hover {
+            background: #9a3a2e;
+        }
+        
+        .task-list {
+            margin-top: 20px;
+        }
+        
+        .task-item {
+            background: #1a1a2e;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .task-category {
+            background: #1E2761;
+            color: white;
+            padding: 5px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+            min-width: 120px;
+            text-align: center;
+        }
+        
+        .task-description {
+            flex: 1;
+            font-size: 14px;
+        }
+        
+        .task-duration {
+            color: #8899BB;
+            font-size: 13px;
+            min-width: 60px;
+        }
+        
+        .task-delete {
+            background: #B85042;
+            color: white;
+            border: none;
+            width: 28px;
+            height: 28px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        
+        .task-delete:hover {
+            background: #9a3a2e;
+        }
+        
+        .stats-bar {
+            display: flex;
+            gap: 40px;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #1a1a2e;
+            border-radius: 8px;
+        }
+        
+        .stat-item {
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 32px;
+            font-weight: bold;
+            color: #CADCFC;
+        }
+        
+        .stat-label {
+            font-size: 12px;
+            color: #8899BB;
+            margin-top: 5px;
+        }
+        
+        .category-section {
+            margin-bottom: 30px;
+        }
+        
+        .category-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .category-name {
+            font-size: 18px;
+            font-weight: bold;
+            color: #028090;
+        }
+        
+        .category-stats {
+            color: #8899BB;
+            font-size: 13px;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #8899BB;
+            font-size: 16px;
+        }
+        
+        .report-btn {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: #028090;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            transition: all 0.2s;
+        }
+        
+        .report-btn:hover {
+            background: #026a78;
+            transform: translateY(-2px);
+        }
+        
+        .report-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #028090;
+            color: white;
+            padding: 15px 25px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            display: none;
+            z-index: 1000;
+        }
+        
+        .notification.show {
+            display: block;
+            animation: slideIn 0.3s ease;
+        }
+        
+        @keyframes slideIn {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Work Tracker</h1>
+            <div style="display: flex; align-items: center; gap: 15px; margin-right: 20px;">
+                <div style="text-align: right;">
+                    <div style="font-size: 14px; font-weight: bold; color: white;">{{ user.name if user else 'User' }}</div>
+                    <div style="font-size: 12px; color: #8899BB;">{{ user.email if user else '' }}</div>
+                </div>
+                <a href="/logout" class="btn" style="background: #B85042; padding: 8px 16px; font-size: 13px;">Logout</a>
+            </div>
+            <div class="tabs">
+                <button class="tab-btn active" onclick="switchTab('dashboard')">Dashboard</button>
+                <button class="tab-btn" onclick="switchTab('analytics')">📊 Analytics</button>
+                <button class="tab-btn" onclick="switchTab('team')">👥 Team</button>
+                <button class="tab-btn" onclick="switchTab('week')">This Week</button>
+                <button class="tab-btn" onclick="switchTab('history')">History</button>
+                <button class="tab-btn" onclick="switchTab('presenter')">🎨 Presenter</button>
+                <button class="tab-btn" onclick="switchTab('settings')">Settings</button>
+            </div>
+        </header>
+        
+        <div class="content">
+            <!-- Dashboard Page -->
+            <div id="dashboard" class="page active">
+                <h2>Dashboard</h2>
+                <p style="color: #8899BB; margin-bottom: 20px;" id="today-date"></p>
+                
+                <div style="background: #1a1a2e; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+                    <h3 style="color: #CADCFC; margin-bottom: 15px;">Log a Task</h3>
+                    
+                    <div style="display: flex; gap: 15px; margin-bottom: 15px;">
+                        <div style="flex: 1;">
+                            <label>Category</label>
+                            <select id="task-category"></select>
+                        </div>
+                        <div style="width: 100px;">
+                            <label>Duration (min)</label>
+                            <input type="number" id="task-duration" value="0" min="0">
+                        </div>
+                    </div>
+                    
+                    <div style="margin-bottom: 15px;">
+                        <label>Task Name (short title)</label>
+                        <input type="text" id="task-name" placeholder="e.g., Korea Campaign">
+                    </div>
+                    
+                    <div style="margin-bottom: 15px;">
+                        <label>Description (details)</label>
+                        <textarea id="task-description" rows="3" placeholder="What did you work on? Include any details..." style="width: 100%; padding: 10px; background: #1a1a2e; border: 1px solid #2a3a6e; border-radius: 6px; color: white; font-size: 14px; resize: vertical;"></textarea>
+                    </div>
+                    
+                    <div style="margin-bottom: 15px;">
+                        <label>URL (optional)</label>
+                        <input type="url" id="task-url" placeholder="https://...">
+                    </div>
+                    
+                    
+                    <div style="margin-bottom: 15px;">
+                        <label>Requester (optional)</label>
+                        <input type="text" id="task-requester" placeholder="Who requested this task?">
+                    </div>
+
+                    <button class="btn" onclick="addTask()">Add Task</button>
+                </div>
+                
+                <h3 style="color: #CADCFC; margin-bottom: 15px;">Today's Tasks</h3>
+                <div id="today-tasks" class="task-list"></div>
+            </div>
+            
+            <!-- Week Page -->
+            <div id="week" class="page">
+                <h2>This Week</h2>
+                <p style="color: #8899BB; margin-bottom: 20px;" id="week-range"></p>
+                
+                <div class="stats-bar" id="week-stats"></div>
+                
+                <div id="week-tasks"></div>
+            </div>
+            
+            <!-- History Page -->
+            <div id="history" class="page">
+                <h2>History</h2>
+                <div id="history-tasks" class="task-list"></div>
+            </div>
+
+            <!-- Analytics Page -->
+            <div id="analytics" class="page">
+                <h2>📊 My Analytics</h2>
+                <p style="color: #8899BB; margin-bottom: 20px;">Visual insights into your productivity and work patterns.</p>
+
+                <div style="display: flex; gap: 15px; margin-bottom: 20px;">
+                    <button class="btn" onclick="loadAnalytics(7)" id="btn-7days">Last 7 Days</button>
+                    <button class="btn" onclick="loadAnalytics(30)" id="btn-30days">Last 30 Days</button>
+                    <button class="btn" onclick="loadAnalytics(90)" id="btn-90days">Last 90 Days</button>
+                </div>
+
+                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 30px;">
+                    <div style="background: #1a1a2e; padding: 20px; border-radius: 8px; text-align: center;">
+                        <div style="font-size: 36px; font-weight: bold; color: #028090;" id="analytics-total-tasks">0</div>
+                        <div style="color: #8899BB; font-size: 14px; margin-top: 5px;">Total Tasks</div>
+                    </div>
+                    <div style="background: #1a1a2e; padding: 20px; border-radius: 8px; text-align: center;">
+                        <div style="font-size: 36px; font-weight: bold; color: #028090;" id="analytics-total-hours">0</div>
+                        <div style="color: #8899BB; font-size: 14px; margin-top: 5px;">Total Hours</div>
+                    </div>
+                    <div style="background: #1a1a2e; padding: 20px; border-radius: 8px; text-align: center;">
+                        <div style="font-size: 36px; font-weight: bold; color: #028090;" id="analytics-avg-tasks">0</div>
+                        <div style="color: #8899BB; font-size: 14px; margin-top: 5px;">Tasks/Day</div>
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 30px;">
+                    <div style="background: #1a1a2e; padding: 20px; border-radius: 8px;">
+                        <h3 style="color: #CADCFC; margin-bottom: 15px;">Time by Category</h3>
+                        <canvas id="category-chart" width="400" height="300"></canvas>
+                    </div>
+                    <div style="background: #1a1a2e; padding: 20px; border-radius: 8px;">
+                        <h3 style="color: #CADCFC; margin-bottom: 15px;">Daily Productivity</h3>
+                        <canvas id="daily-chart" width="400" height="300"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Team Page -->
+            <div id="team" class="page">
+                <h2>👥 Team Dashboard</h2>
+                <p style="color: #8899BB; margin-bottom: 20px;">Collaborate with your team and track collective productivity.</p>
+
+                <div id="team-selector" style="background: #1a1a2e; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+                    <div style="display: flex; gap: 15px; align-items: center;">
+                        <label style="margin: 0;">Select Team:</label>
+                        <select id="team-select" style="flex: 1;" onchange="loadTeamDashboard()">
+                            <option value="">-- Select a team --</option>
+                        </select>
+                        <button class="btn" onclick="showCreateTeam()">+ Create Team</button>
+                    </div>
+                </div>
+
+                <div id="create-team-form" style="display: none; background: #1a1a2e; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+                    <h3 style="color: #CADCFC; margin-bottom: 15px;">Create New Team</h3>
+                    <div style="margin-bottom: 15px;">
+                        <label>Team Name</label>
+                        <input type="text" id="new-team-name" placeholder="e.g., Marketing Team">
+                    </div>
+                    <div style="display: flex; gap: 10px;">
+                        <button class="btn" onclick="createTeam()">Create</button>
+                        <button class="btn btn-danger" onclick="hideCreateTeam()">Cancel</button>
+                    </div>
+                </div>
+
+                <div id="team-dashboard" style="display: none;">
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 30px;">
+                        <div style="background: #1a1a2e; padding: 20px; border-radius: 8px; text-align: center;">
+                            <div style="font-size: 36px; font-weight: bold; color: #028090;" id="team-total-members">0</div>
+                            <div style="color: #8899BB; font-size: 14px; margin-top: 5px;">Team Members</div>
+                        </div>
+                        <div style="background: #1a1a2e; padding: 20px; border-radius: 8px; text-align: center;">
+                            <div style="font-size: 36px; font-weight: bold; color: #028090;" id="team-total-tasks">0</div>
+                            <div style="color: #8899BB; font-size: 14px; margin-top: 5px;">Total Tasks</div>
+                        </div>
+                        <div style="background: #1a1a2e; padding: 20px; border-radius: 8px; text-align: center;">
+                            <div style="font-size: 36px; font-weight: bold; color: #028090;" id="team-total-hours">0</div>
+                            <div style="color: #8899BB; font-size: 14px; margin-top: 5px;">Total Hours</div>
+                        </div>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 30px;">
+                        <div style="background: #1a1a2e; padding: 20px; border-radius: 8px;">
+                            <h3 style="color: #CADCFC; margin-bottom: 15px;">Team Workload Distribution</h3>
+                            <canvas id="team-members-chart" width="400" height="300"></canvas>
+                        </div>
+                        <div style="background: #1a1a2e; padding: 20px; border-radius: 8px;">
+                            <h3 style="color: #CADCFC; margin-bottom: 15px;">Category Breakdown</h3>
+                            <canvas id="team-category-chart" width="400" height="300"></canvas>
+                        </div>
+                    </div>
+
+                    <div style="background: #1a1a2e; padding: 20px; border-radius: 8px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                            <h3 style="color: #CADCFC;">Team Members</h3>
+                            <button class="btn" onclick="showAddMember()" id="add-member-btn" style="display: none;">+ Add Member</button>
+                        </div>
+                        <div id="add-member-form" style="display: none; margin-bottom: 15px; padding: 15px; background: #16213e; border-radius: 6px;">
+                            <div style="display: flex; gap: 10px; align-items: end;">
+                                <div style="flex: 1;">
+                                    <label>Member Email</label>
+                                    <input type="email" id="new-member-email" placeholder="colleague@trip.com">
+                                </div>
+                                <button class="btn" onclick="addTeamMember()">Add</button>
+                                <button class="btn btn-danger" onclick="hideAddMember()">Cancel</button>
+                            </div>
+                        </div>
+                        <div id="team-members-list"></div>
+                    </div>
+                </div>
+
+                <div id="no-team-message" style="text-align: center; padding: 60px 20px; color: #8899BB;">
+                    <p style="font-size: 18px; margin-bottom: 10px;">You're not part of any team yet.</p>
+                    <p>Create a team or ask your manager to add you to one.</p>
+                </div>
+            </div>
+            
+
+            <!-- Presentation Generator Page -->
+            <div id="presenter" class="page">
+                <h2>🎨 Presentation Generator</h2>
+                <p style="color: #8899BB; margin-bottom: 20px;">
+                    Create a styled presentation on any topic. Describe your topic and get a complete slide deck.
+                </p>
+
+                <div style="background: #1a1a2e; padding: 25px; border-radius: 10px; margin-bottom: 20px;">
+                    <div class="form-group">
+                        <label>Presentation Title</label>
+                        <input type="text" id="pres-title" placeholder="e.g., AI in Healthcare, Q4 Marketing Strategy">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Topic Description</label>
+                        <textarea id="pres-description" rows="4" placeholder="Describe what this presentation is about. The more detail, the better the slides..." style="width: 100%; padding: 10px; background: #1a1a2e; border: 1px solid #2a3a6e; border-radius: 6px; color: white; font-size: 14px; resize: vertical; min-height: 80px;"></textarea>
+                    </div>
+
+                    <div style="display: flex; gap: 20px; margin-bottom: 15px;">
+                        <div style="flex: 1;">
+                            <label>Number of Slides</label>
+                            <select id="pres-slides">
+                                <option value="4">4 slides (brief)</option>
+                                <option value="6" selected>6 slides (standard)</option>
+                                <option value="8">8 slides (detailed)</option>
+                                <option value="10">10 slides (comprehensive)</option>
+                            </select>
+                        </div>
+                        <div style="flex: 1;">
+                            <label>Theme Style</label>
+                            <select id="pres-theme">
+                                <option value="auto">🔍 Auto-detect</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <button class="btn" onclick="generatePresentation()" style="width: 100%; padding: 15px; font-size: 16px;">
+                        🚀 Generate Presentation
+                    </button>
+                </div>
+
+                <div id="pres-result" style="display: none;">
+                    <div style="background: #064E3B; padding: 20px; border-radius: 10px; border: 1px solid #34D399;">
+                        <h3 style="color: #34D399; margin-bottom: 10px;">✅ Presentation Generated!</h3>
+                        <p style="color: #A7F3D0; margin-bottom: 15px;" id="pres-result-path"></p>
+                        <button class="btn" onclick="openPresentation()" style="background: #34D399; color: #064E3B;">
+                            📂 Open File Location
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Settings Page -->
+            <div id="settings" class="page">
+                <h2>Settings</h2>
+                
+                <h3 style="color: #CADCFC; margin: 20px 0 15px;">Categories</h3>
+                <div id="categories-list"></div>
+                
+                <div style="background: #1a1a2e; padding: 20px; border-radius: 8px; margin-top: 20px;">
+                    <h4 style="color: #CADCFC; margin-bottom: 15px;">Add Category</h4>
+                    <div style="display: flex; gap: 10px;">
+                        <input type="text" id="new-category" placeholder="Category name" style="flex: 1;">
+                        <button class="btn" onclick="addCategory()">Add</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <button class="report-btn" onclick="generateReport()">📊 Generate Report</button>
+    
+    <div class="notification" id="notification"></div>
+    
+    <script>
+        let categories = [];
+        
+        // Initialize
+        async function init() {
+            await loadCategories();
+            await loadDashboard();
+            updateDate();
+        }
+        
+        function updateDate() {
+            const today = new Date();
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            document.getElementById('today-date').textContent = today.toLocaleDateString('en-US', options);
+            
+            const monday = new Date(today);
+            monday.setDate(today.getDate() - today.getDay() + 1);
+            const sunday = new Date(monday);
+            sunday.setDate(monday.getDate() + 6);
+            document.getElementById('week-range').textContent = 
+                `${monday.toLocaleDateString('en-US', {month: 'short', day: 'numeric'})} — ${sunday.toLocaleDateString('en-US', {month: 'short', day: 'numeric', year: 'numeric'})}`;
+        }
+        
+        async function loadCategories() {
+            const res = await fetch('/api/categories');
+            categories = await res.json();
+            
+            const select = document.getElementById('task-category');
+            select.innerHTML = categories.map(c => `<option value="${c.name}">${c.name}</option>`).join('');
+            
+            renderCategories();
+        }
+        
+        async function loadDashboard() {
+            const res = await fetch('/api/tasks?scope=today');
+            const tasks = await res.json();
+            renderTaskList('today-tasks', tasks);
+        }
+        
+        async function loadWeek() {
+            const res = await fetch('/api/stats/week');
+            const stats = await res.json();
+            
+            const totalTasks = Object.values(stats).reduce((sum, s) => sum + s.count, 0);
+            const totalMins = Object.values(stats).reduce((sum, s) => sum + s.total_minutes, 0);
+            
+            document.getElementById('week-stats').innerHTML = `
+                <div class="stat-item">
+                    <div class="stat-value">${totalTasks}</div>
+                    <div class="stat-label">Tasks</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">${totalMins}min</div>
+                    <div class="stat-label">Time</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">${Object.keys(stats).length}</div>
+                    <div class="stat-label">Categories</div>
+                </div>
+            `;
+            
+            let html = '';
+            for (const [catName, catStats] of Object.entries(stats)) {
+                const cat = categories.find(c => c.name === catName);
+                const color = cat ? cat.color : '#1E2761';
+                
+                html += `
+                    <div class="category-section">
+                        <div class="category-header">
+                            <div class="category-name" style="color: ${color}">${catName}</div>
+                            <div class="category-stats">${catStats.count} tasks · ${catStats.total_minutes}min</div>
+                        </div>
+                        <div class="task-list">
+                            ${catStats.tasks.map(t => renderTaskItem(t)).join('')}
+                        </div>
+                    </div>
+                `;
+            }
+            
+            document.getElementById('week-tasks').innerHTML = html || '<div class="empty-state">No tasks this week</div>';
+        }
+        
+        async function loadHistory() {
+            const res = await fetch('/api/tasks?scope=all');
+            const tasks = await res.json();
+            
+            if (tasks.length === 0) {
+                document.getElementById('history-tasks').innerHTML = '<div class="empty-state">No tasks logged yet</div>';
+                return;
+            }
+            
+            const byDate = tasks.reduce((acc, t) => {
+                if (!acc[t.date]) acc[t.date] = [];
+                acc[t.date].push(t);
+                return acc;
+            }, {});
+            
+            let html = '';
+            for (const [date, dateTasks] of Object.entries(byDate).sort((a, b) => b[0].localeCompare(a[0]))) {
+                const dateObj = new Date(date);
+                const dateLabel = dateObj.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+                const totalMin = dateTasks.reduce((sum, t) => sum + t.duration_minutes, 0);
+                
+                html += `
+                    <div style="margin-bottom: 30px;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                            <div style="color: #CADCFC; font-weight: bold;">${dateLabel}</div>
+                            <div style="color: #8899BB; font-size: 13px;">${dateTasks.length} tasks · ${totalMin}min</div>
+                        </div>
+                        <div class="task-list">
+                            ${dateTasks.map(t => renderTaskItem(t)).join('')}
+                        </div>
+                    </div>
+                `;
+            }
+            
+            document.getElementById('history-tasks').innerHTML = html;
+        }
+        
+        function renderTaskList(containerId, tasks) {
+            const container = document.getElementById(containerId);
+            if (tasks.length === 0) {
+                container.innerHTML = '<div class="empty-state">No tasks logged yet</div>';
+                return;
+            }
+            container.innerHTML = tasks.map(t => renderTaskItem(t)).join('');
+        }
+        
+        function renderTaskItem(task) {
+            const cat = categories.find(c => c.name === task.category);
+            const color = cat ? cat.color : '#1E2761';
+            const dur = task.duration_minutes > 0 ? `${task.duration_minutes}min` : '—';
+            const name = task.name || task.description.substring(0, 30);
+            const desc = task.description || '—';
+            const url = task.url || '';
+            const requester = task.requester || '';
+            
+            return `
+                <div class="task-item" style="flex-wrap: wrap;">
+                    <div class="task-category" style="background: ${color}; min-width: 100px;">${task.category}</div>
+                    <div style="flex: 2; min-width: 150px;">
+                        <div style="font-weight: bold; color: white; margin-bottom: 4px;">${name}</div>
+                        <div style="font-size: 12px; color: #8899BB;">${desc}</div>
+                        ${requester ? `<div style="font-size: 11px; color: #F5A623; margin-top: 4px;"> ${requester}</div>` : ''}
+                    </div>
+                    <div style="flex: 1; min-width: 120px;">
+                        ${url ? `<a href="${url}" target="_blank" style="color: #38BDF8; font-size: 12px; word-break: break-all;">${url.substring(0, 30)}${url.length > 30 ? '...' : ''}</a>` : '<span style="color: #8899BB; font-size: 12px;">—</span>'}
+                    </div>
+                    <div class="task-duration" style="min-width: 50px;">${dur}</div>
+                    <button class="task-delete" onclick="deleteTask(${task.id})">✕</button>
+                </div>
+            `;
+        }
+        
+        function renderCategories() {
+            const container = document.getElementById('categories-list');
+            container.innerHTML = categories.map(c => `
+                <div class="task-item">
+                    <div style="width: 14px; height: 14px; border-radius: 50%; background: ${c.color};"></div>
+                    <div class="task-description">${c.name}</div>
+                    <button class="task-delete" onclick="deleteCategory('${c.name}')">✕</button>
+                </div>
+            `).join('');
+        }
+        
+        async function addTask() {
+            const category = document.getElementById('task-category').value;
+            const duration = parseInt(document.getElementById('task-duration').value) || 0;
+            const name = document.getElementById('task-name').value.trim();
+            const description = document.getElementById('task-description').value.trim();
+            const url = document.getElementById('task-url').value.trim();
+            const requester = document.getElementById('task-requester').value.trim();
+            
+            if (!description) {
+                showNotification('Please enter a task description', 'error');
+                return;
+            }
+            
+            await fetch('/api/tasks', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ category, duration, name, description, url, requester })
+            });
+            
+            document.getElementById('task-name').value = '';
+            document.getElementById('task-description').value = '';
+            document.getElementById('task-url').value = '';
+            document.getElementById('task-requester').value = '';
+            document.getElementById('task-duration').value = '0';
+            
+            await loadDashboard();
+            showNotification('Task added!');
+        }
+        
+        async function deleteTask(id) {
+            if (!confirm('Delete this task?')) return;
+            await fetch(`/api/tasks/${id}`, { method: 'DELETE' });
+            await refreshCurrentTab();
+        }
+        
+        async function addCategory() {
+            const name = document.getElementById('new-category').value.trim();
+            if (!name) return;
+            
+            await fetch('/api/categories', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name })
+            });
+            
+            document.getElementById('new-category').value = '';
+            await loadCategories();
+            showNotification('Category added!');
+        }
+        
+        async function deleteCategory(name) {
+            if (!confirm(`Delete category '${name}'?`)) return;
+            await fetch(`/api/categories/${name}`, { method: 'DELETE' });
+            await loadCategories();
+        }
+        
+        async function generateReport() {
+            const btn = document.querySelector('.report-btn');
+            btn.disabled = true;
+            btn.textContent = 'Generating...';
+            
+            try {
+                const res = await fetch('/api/report', { method: 'POST' });
+                const data = await res.json();
+                
+                if (data.success) {
+                    showNotification('Report generated! Downloading...');
+                    
+                    // Automatically download the file
+                    if (data.download_url) {
+                        const downloadLink = document.createElement('a');
+                        downloadLink.href = data.download_url;
+                        downloadLink.download = data.filename || 'Weekly_Report.pptx';
+                        document.body.appendChild(downloadLink);
+                        downloadLink.click();
+                        document.body.removeChild(downloadLink);
+                    }
+                } else {
+                    showNotification(`Error: ${data.error}`, 'error');
+                }
+            } catch (e) {
+                showNotification(`Error: ${e.message}`, 'error');
+            } finally {
+                btn.disabled = false;
+                btn.textContent = '📊 Generate Report';
+            }
+        }
+        
+        function switchTab(tabName) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+
+            if (tabName === 'week') loadWeek();
+            if (tabName === 'history') loadHistory();
+            if (tabName === 'settings') {
+                loadCategories();
+                loadSettings();
+            }
+            if (tabName === 'presenter') {
+                loadThemes();
+            }
+            if (tabName === 'analytics') {
+                loadAnalytics(7);
+            }
+            if (tabName === 'team') {
+                loadUserTeams();
+            }
+        }
+        
+        async function refreshCurrentTab() {
+            const activeTab = document.querySelector('.tab-btn.active').textContent.toLowerCase();
+            if (activeTab.includes('dashboard')) await loadDashboard();
+            if (activeTab.includes('week')) await loadWeek();
+            if (activeTab.includes('history')) await loadHistory();
+        }
+        
+        function showNotification(message, type = 'success') {
+            const notif = document.getElementById('notification');
+            notif.textContent = message;
+            notif.style.background = type === 'error' ? '#B85042' : '#028090';
+            notif.classList.add('show');
+            setTimeout(() => notif.classList.remove('show'), 3000);
+        }
+        
+        // Enter key to add task
+        document.getElementById('task-description').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') addTask();
+        });
+        
+        // Initialize on load
+        init();
+        loadThemes();
+
+        // Presentation Generator functions
+        let lastGeneratedPath = '';
+
+        async function loadThemes() {
+            try {
+                const res = await fetch('/api/themes');
+                const themes = await res.json();
+                const select = document.getElementById('pres-theme');
+                if (select) {
+                    themes.forEach(t => {
+                        const option = document.createElement('option');
+                        option.value = t.key;
+                        option.textContent = t.name;
+                        select.appendChild(option);
+                    });
+                }
+            } catch (e) {
+                console.error('Failed to load themes:', e);
+            }
+        }
+
+        async function generatePresentation() {
+            const title = document.getElementById('pres-title').value.trim();
+            const description = document.getElementById('pres-description').value.trim();
+            const numSlides = document.getElementById('pres-slides').value;
+            const theme = document.getElementById('pres-theme').value;
+
+            if (!title) {
+                showNotification('Please enter a presentation title', 'error');
+                return;
+            }
+            if (!description) {
+                showNotification('Please describe your topic', 'error');
+                return;
+            }
+
+            const btn = event.target;
+            btn.disabled = true;
+            btn.textContent = '⏳ Generating...';
+
+            try {
+                const res = await fetch('/api/generate-presentation', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ title, description, num_slides: parseInt(numSlides), theme })
+                });
+                const data = await res.json();
+
+                if (data.success) {
+                    lastGeneratedPath = data.path;
+                    document.getElementById('pres-result-path').textContent = data.filename || data.path;
+                    document.getElementById('pres-result').style.display = 'block';
+                    showNotification('Presentation generated! Downloading...');
+                    
+                    // Automatically download the file
+                    if (data.download_url) {
+                        const downloadLink = document.createElement('a');
+                        downloadLink.href = data.download_url;
+                        downloadLink.download = data.filename || 'presentation.pptx';
+                        document.body.appendChild(downloadLink);
+                        downloadLink.click();
+                        document.body.removeChild(downloadLink);
+                    }
+                } else {
+                    showNotification(`Error: ${data.error}`, 'error');
+                }
+            } catch (e) {
+                showNotification(`Error: ${e.message}`, 'error');
+            } finally {
+                btn.disabled = false;
+                btn.textContent = '🚀 Generate Presentation';
+            }
+        }
+
+        function openPresentation() {
+            if (lastGeneratedPath) {
+                const folder = lastGeneratedPath.substring(0, lastGeneratedPath.lastIndexOf('/'));
+                window.open(`file://${folder}`, '_blank');
+            }
+        }
+
+        // ── Analytics Functions ──────────────────────────────────
+
+        let categoryChart = null;
+        let dailyChart = null;
+
+        async function loadAnalytics(days = 7) {
+            const res = await fetch(`/api/analytics/personal?days=${days}`);
+            const data = await res.json();
+
+            // Update stats
+            document.getElementById('analytics-total-tasks').textContent = data.total_tasks;
+            document.getElementById('analytics-total-hours').textContent = data.total_hours;
+            const avgTasks = days > 0 ? (data.total_tasks / days).toFixed(1) : 0;
+            document.getElementById('analytics-avg-tasks').textContent = avgTasks;
+
+            // Category pie chart
+            if (categoryChart) categoryChart.destroy();
+            const categoryCtx = document.getElementById('category-chart').getContext('2d');
+            const categoryLabels = Object.keys(data.category_breakdown);
+            const categoryData = Object.values(data.category_breakdown).map(v => Math.round(v / 60 * 10) / 10); // Convert to hours
+            
+            categoryChart = new Chart(categoryCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: categoryLabels,
+                    datasets: [{
+                        data: categoryData,
+                        backgroundColor: [
+                            '#028090', '#1E2761', '#2C5F2D', '#B85042', 
+                            '#6D2E46', '#36454F', '#E85A4F', '#7BD3C9'
+                        ],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: { color: '#CADCFC', padding: 15 }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.label + ': ' + context.parsed + ' hours';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Daily productivity bar chart
+            if (dailyChart) dailyChart.destroy();
+            const dailyCtx = document.getElementById('daily-chart').getContext('2d');
+            const dailyLabels = Object.keys(data.daily_stats).sort();
+            const dailyData = dailyLabels.map(date => {
+                const mins = data.daily_stats[date];
+                return Math.round(mins / 60 * 10) / 10; // Convert to hours
+            });
+
+            dailyChart = new Chart(dailyCtx, {
+                type: 'bar',
+                data: {
+                    labels: dailyLabels.map(d => new Date(d).toLocaleDateString('en-US', {month: 'short', day: 'numeric'})),
+                    datasets: [{
+                        label: 'Hours',
+                        data: dailyData,
+                        backgroundColor: '#028090',
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: { color: '#8899BB' },
+                            grid: { color: '#16213e' }
+                        },
+                        x: {
+                            ticks: { color: '#8899BB' },
+                            grid: { display: false }
+                        }
+                    }
+                }
+            });
+
+            // Update button states
+            document.querySelectorAll('#analytics .btn').forEach(btn => btn.style.opacity = '0.6');
+            document.getElementById(`btn-${days}days`).style.opacity = '1';
+        }
+
+        // ── Team Functions ───────────────────────────────────────
+
+        let teamMembersChart = null;
+        let teamCategoryChart = null;
+        let currentTeamId = null;
+        let isManager = false;
+
+        async function loadUserTeams() {
+            const res = await fetch('/api/teams');
+            const teams = await res.json();
+
+            const select = document.getElementById('team-select');
+            select.innerHTML = '<option value="">-- Select a team --</option>';
+            teams.forEach(team => {
+                select.innerHTML += `<option value="${team.id}">${team.name} (${team.role})</option>`;
+            });
+
+            if (teams.length === 0) {
+                document.getElementById('no-team-message').style.display = 'block';
+                document.getElementById('team-dashboard').style.display = 'none';
+            }
+        }
+
+        async function loadTeamDashboard() {
+            const teamId = document.getElementById('team-select').value;
+            if (!teamId) {
+                document.getElementById('team-dashboard').style.display = 'none';
+                document.getElementById('no-team-message').style.display = 'block';
+                return;
+            }
+
+            currentTeamId = parseInt(teamId);
+            const res = await fetch(`/api/analytics/team/${currentTeamId}?days=7`);
+            const data = await res.json();
+
+            isManager = data.is_manager;
+
+            // Show dashboard
+            document.getElementById('no-team-message').style.display = 'none';
+            document.getElementById('team-dashboard').style.display = 'block';
+
+            // Update stats
+            document.getElementById('team-total-members').textContent = data.members.length;
+            document.getElementById('team-total-tasks').textContent = data.total_tasks;
+            document.getElementById('team-total-hours').textContent = data.total_hours;
+
+            // Show/hide add member button based on manager role
+            document.getElementById('add-member-btn').style.display = isManager ? 'block' : 'none';
+
+            // Team members workload chart
+            if (teamMembersChart) teamMembersChart.destroy();
+            const membersCtx = document.getElementById('team-members-chart').getContext('2d');
+            const memberLabels = data.members.map(m => m.name || m.email);
+            const memberData = data.members.map(m => m.total_minutes / 60); // Convert to hours
+
+            teamMembersChart = new Chart(membersCtx, {
+                type: 'bar',
+                data: {
+                    labels: memberLabels,
+                    datasets: [{
+                        label: 'Hours',
+                        data: memberData,
+                        backgroundColor: '#028090',
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    indexAxis: 'y',
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            ticks: { color: '#8899BB' },
+                            grid: { color: '#16213e' }
+                        },
+                        y: {
+                            ticks: { color: '#8899BB' },
+                            grid: { display: false }
+                        }
+                    }
+                }
+            });
+
+            // Team category breakdown
+            if (teamCategoryChart) teamCategoryChart.destroy();
+            const categoryCtx = document.getElementById('team-category-chart').getContext('2d');
+            const categoryLabels = Object.keys(data.category_breakdown);
+            const categoryData = Object.values(data.category_breakdown).map(v => Math.round(v / 60 * 10) / 10);
+
+            teamCategoryChart = new Chart(categoryCtx, {
+                type: 'pie',
+                data: {
+                    labels: categoryLabels,
+                    datasets: [{
+                        data: categoryData,
+                        backgroundColor: [
+                            '#028090', '#1E2761', '#2C5F2D', '#B85042', 
+                            '#6D2E46', '#36454F', '#E85A4F', '#7BD3C9'
+                        ],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: { color: '#CADCFC', padding: 15 }
+                        }
+                    }
+                }
+            });
+
+            // Load team members list
+            await loadTeamMembers();
+        }
+
+        async function loadTeamMembers() {
+            const res = await fetch(`/api/teams/${currentTeamId}/members`);
+            const members = await res.json();
+
+            const list = document.getElementById('team-members-list');
+            list.innerHTML = members.map(m => `
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px; background: #16213e; border-radius: 6px; margin-bottom: 8px;">
+                    <div>
+                        <div style="color: #CADCFC; font-weight: 500;">${m.name || m.user_email}</div>
+                        <div style="color: #8899BB; font-size: 13px;">${m.user_email}</div>
+                    </div>
+                    <div style="display: flex; gap: 10px; align-items: center;">
+                        <span style="background: ${m.role === 'manager' ? '#028090' : '#16213e'}; color: ${m.role === 'manager' ? 'white' : '#8899BB'}; padding: 4px 12px; border-radius: 4px; font-size: 12px; text-transform: uppercase;">${m.role}</span>
+                        ${isManager && m.role !== 'manager' ? `<button class="btn btn-danger" onclick="removeTeamMember('${m.user_email}')" style="padding: 6px 12px; font-size: 13px;">Remove</button>` : ''}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function showCreateTeam() {
+            document.getElementById('create-team-form').style.display = 'block';
+            document.getElementById('team-selector').style.display = 'none';
+        }
+
+        function hideCreateTeam() {
+            document.getElementById('create-team-form').style.display = 'none';
+            document.getElementById('team-selector').style.display = 'block';
+        }
+
+        async function createTeam() {
+            const name = document.getElementById('new-team-name').value.trim();
+            if (!name) {
+                showNotification('Please enter a team name', 'error');
+                return;
+            }
+
+            const res = await fetch('/api/teams', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name })
+            });
+
+            const data = await res.json();
+            if (data.success) {
+                showNotification('Team created successfully!');
+                document.getElementById('new-team-name').value = '';
+                hideCreateTeam();
+                await loadUserTeams();
+            } else {
+                showNotification(`Error: ${data.error}`, 'error');
+            }
+        }
+
+        function showAddMember() {
+            document.getElementById('add-member-form').style.display = 'block';
+        }
+
+        function hideAddMember() {
+            document.getElementById('add-member-form').style.display = 'none';
+            document.getElementById('new-member-email').value = '';
+        }
+
+        async function addTeamMember() {
+            const email = document.getElementById('new-member-email').value.trim().toLowerCase();
+            if (!email) {
+                showNotification('Please enter an email', 'error');
+                return;
+            }
+
+            const res = await fetch(`/api/teams/${currentTeamId}/members`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email })
+            });
+
+            const data = await res.json();
+            if (data.success) {
+                showNotification('Member added successfully!');
+                document.getElementById('new-member-email').value = '';
+                hideAddMember();
+                await loadTeamMembers();
+                await loadTeamDashboard();
+            } else {
+                showNotification(`Error: ${data.error}`, 'error');
+            }
+        }
+
+        async function removeTeamMember(email) {
+            if (!confirm(`Remove ${email} from the team?`)) return;
+
+            const res = await fetch(`/api/teams/${currentTeamId}/members/${encodeURIComponent(email)}`, {
+                method: 'DELETE'
+            });
+
+            const data = await res.json();
+            if (data.success) {
+                showNotification('Member removed');
+                await loadTeamMembers();
+                await loadTeamDashboard();
+            } else {
+                showNotification(`Error: ${data.error}`, 'error');
+            }
+        }
+
+    </script>
+</body>
+</html>
